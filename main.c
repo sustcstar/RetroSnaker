@@ -33,6 +33,7 @@ typedef struct snake{
     int dy; // 蛇y轴移动的方向
     int score; // 游戏得分
     BODY tail;
+    char direction; // 蛇正在行进的方向（用字符表示）
 }SNAKE;
 
 void init_ui(){
@@ -47,8 +48,8 @@ void init_ui(){
 // TODO：万一蛇的身体和食物重叠怎么办？
 void init_food(SNAKE *snake){
     srand(time(NULL));
-    snake->food.x = rand()%(WIDE);
-    snake->food.y = rand()%(HIGH);
+    snake->food.x = rand()%(WIDE-1) + 1; // 不能生成在围墙上
+    snake->food.y = rand()%(HIGH-1) + 1;
 }
 
 void init_snake(SNAKE *snake){
@@ -108,10 +109,28 @@ void move_snake(SNAKE *snake){
 }
 
 void control_snake(SNAKE *snake){
-    char key = 0; // 必须初始化为0，当做是这个函数使用的特性就好
+    char key = 0; // 这一次的按键，必须初始化为0，当做是这个函数使用的特性就好
     while(_kbhit()){ // 判断是否有按键被按下, 按下为真
         key = _getch();
     }
+    // 如果按键没有按下，则返回
+    if(0 == key){
+        return;
+    }
+    // 如果这次蛇的正在行进的方向和该按键相反，则忽略这次操作
+    if(snake->direction == 'a' && key == 'd'){
+        return;
+    }
+    else if(snake->direction == 'd' && key == 'a'){
+        return;
+    }
+    else if(snake->direction == 'w' && key == 's'){
+        return;
+    }
+    else if(snake->direction == 's' && key == 'w'){
+        return;
+    }
+    snake->direction = key; // 修改蛇正在移动的方向
     switch(key){
         case 'a':
             snake->dx = -1;
